@@ -3,7 +3,7 @@ name: Daily Tech Stock Report
 on:
   schedule:
     # 09:00 Asia/Hong_Kong = 01:00 UTC.
-    - cron: "0 1 * * *"
+    - cron: "7 1 * * *"
   workflow_dispatch:
 
 jobs:
