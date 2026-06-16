@@ -16,6 +16,7 @@ import yfinance as yf
 US_TICKERS = {
     "NVDA": "NVIDIA",
     "TSM": "台积电 ADR",
+    "NASA": "Tema Space Innovators ETF",
 }
 
 HK_TICKERS = {
@@ -65,7 +66,7 @@ def fmt_volume(value: int | None) -> str:
 def rsi(close: pd.Series, period: int = 14) -> pd.Series:
     delta = close.diff()
     gain = delta.clip(lower=0).rolling(period).mean()
-    loss = (-delta.clip(upper=0)).rolling(period).mean()
+    loss = (-delta.clip(upper=0).rolling(period).mean())
     rs = gain / loss.replace(0, pd.NA)
     return 100 - (100 / (1 + rs))
 
@@ -209,7 +210,7 @@ def main() -> None:
     us_rows = [row for ticker, name in US_TICKERS.items() if (row := summarize_quote(ticker, name))]
     hk_rows = [row for ticker, name in HK_TICKERS.items() if (row := summarize_quote(ticker, name))]
 
-    news_symbols = ["NVDA", "TSM", "AMD", "AVGO", "SMCI", "TSLA", "ROK"]
+    news_symbols = ["NVDA", "TSM", "NASA", "AMD", "AVGO", "SMCI", "TSLA", "ROK"]
     news_lines: list[str] = []
     for symbol in news_symbols:
         for title, link in yahoo_news(symbol, limit=2):
@@ -222,12 +223,12 @@ def main() -> None:
         [
             "# 美股与港股科技行情日报",
             f"生成时间：{generated}\n\n说明：本云端版每天 09:00 香港时间运行。SPCX 不再映射为 XPEV；若 SPCX 尚无正式行情，则只做 IPO/上市进展跟踪。",
-            "## 摘要\n\n- 美股部分聚焦 NVDA、TSM 与 SPCX/SpaceX。\n- 港股互联网部分跟踪阿里巴巴、腾讯、美团。\n- 技术指标使用最近可取得日线计算，若数据源缺失则明确留空。",
+            "## 摘要\n\n- 美股部分聚焦 NVDA、TSM、NASA 主题 ETF 与 SPCX/SpaceX。\n- NASA 是 Tema Space Innovators ETF，不是美国国家航空航天局股票；本报告将其作为商业航天主题 ETF 跟踪。\n- 港股互联网部分跟踪阿里巴巴、腾讯、美团。\n- 技术指标使用最近可取得日线计算，若数据源缺失则明确留空。",
             "## 美股重点标的\n\n" + (quote_table(us_rows) if us_rows else "未取得美股日线数据。"),
             build_spcx_section(),
             "## 美股科技、AI 与机器人播报\n\n" + "\n".join(news_lines[:12]),
             "## 港股互联网\n\n" + (quote_table(hk_rows) if hk_rows else "未取得港股日线数据。"),
-            "## 催化剂与风险\n\n- AI 算力资本开支、HBM/先进封装供需、云厂商 CAPEX 指引。\n- SPCX 上市定价、首日流动性、锁定期、SEC 文件更新与估值可比性。\n- 港股互联网关注内需修复、竞争强度、回购、监管预期与南向资金。\n\n本报告为行情复盘与观察清单，不构成投资建议。",
+            "## 催化剂与风险\n\n- AI 算力资本开支、HBM/先进封装供需、云厂商 CAPEX 指引。\n- SPCX 上市定价、首日流动性、锁定期、SEC 文件更新与估值可比性。\n- NASA 作为商业航天主题 ETF，关注持仓集中度、SPCX 相关敞口、主题资金流入流出与高波动风险。\n- 港股互联网关注内需修复、竞争强度、回购、监管预期与南向资金。\n\n本报告为行情复盘与观察清单，不构成投资建议。",
         ]
     )
 
