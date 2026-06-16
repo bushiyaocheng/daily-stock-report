@@ -2,7 +2,7 @@ name: Daily Tech Stock Report
 
 on:
   schedule:
-    # 09:00 Asia/Hong_Kong = 01:00 UTC.
+    # 09:07 Asia/Hong_Kong = 01:07 UTC.
     - cron: "7 1 * * *"
   workflow_dispatch:
 
@@ -14,6 +14,25 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Log schedule diagnostics
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          echo "event_schedule=${{ github.event.schedule }}"
+          echo "run_id=${{ github.run_id }}"
+          echo "run_attempt=${{ github.run_attempt }}"
+          echo "workflow_sha=${{ github.sha }}"
+          echo "utc_now=$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "hkt_now=$(TZ=Asia/Hong_Kong date '+%Y-%m-%d %H:%M:%S HKT')"
+          echo "expected_schedule=01:07 UTC / 09:07 HKT"
+          {
+            echo "### Schedule diagnostics"
+            echo "- event: ${{ github.event_name }}"
+            echo "- schedule: ${{ github.event.schedule }}"
+            echo "- UTC now: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            echo "- HKT now: $(TZ=Asia/Hong_Kong date '+%Y-%m-%d %H:%M:%S HKT')"
+            echo "- expected: 01:07 UTC / 09:07 HKT"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Set up Python
         uses: actions/setup-python@v5
